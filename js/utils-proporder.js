@@ -239,7 +239,7 @@ export class PropOrder {
 			});
 
 		// ensure any non-orderable keys are maintained
-		const otherKeys = keySet.difference(seenKeys);
+		const otherKeys = CollectionUtil.setDiff(keySet, seenKeys);
 		[...otherKeys].forEach(prop => {
 			out[prop] = obj[prop];
 			if (!opts.fnUnhandledKey) return;
@@ -1847,7 +1847,6 @@ PropOrder._ITEM = [
 	"bow",
 	"bulletFirearm",
 	"bulletSling",
-	"cellEnergy",
 	"club",
 	"crossbow",
 	"dagger",
@@ -1879,8 +1878,6 @@ PropOrder._ITEM = [
 	"packContents",
 	"atomicPackContents",
 	"containerCapacity",
-
-	"light",
 
 	"optionalfeatures",
 	"attachedSpells",

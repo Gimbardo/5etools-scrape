@@ -404,7 +404,6 @@
 			"rarity": "none",
 			"weight": 0.3125,
 			"age": "futuristic",
-			"cellEnergy": true,
 			"miscTags": [
 				"CNS"
 			]
@@ -1033,7 +1032,6 @@
 			"rarity": "none",
 			"weight": 0.1,
 			"age": "modern",
-			"bulletFirearm": true,
 			"miscTags": [
 				"CNS"
 			]
@@ -1046,7 +1044,6 @@
 			"rarity": "none",
 			"weight": 1,
 			"age": "modern",
-			"bulletFirearm": true,
 			"packContents": [
 				{
 					"item": "modern bullet",
@@ -1270,7 +1267,6 @@
 			"weight": 0.2,
 			"value": 30,
 			"age": "renaissance",
-			"bulletFirearm": true,
 			"miscTags": [
 				"CNS"
 			]
@@ -1284,7 +1280,6 @@
 			"weight": 2,
 			"value": 300,
 			"age": "renaissance",
-			"bulletFirearm": true,
 			"packContents": [
 				{
 					"item": "renaissance bullet",

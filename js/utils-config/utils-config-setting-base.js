@@ -50,7 +50,7 @@ class _ConfigSettingBase {
 
 	/**
 	 * @abstract
-	 * @return {HTMLElementExtended}
+	 * @return {HTMLElementModified}
 	 */
 	_renderUi (rdState) { throw new Error("Unimplemented!"); }
 
@@ -70,7 +70,7 @@ export class ConfigSettingExternal extends _ConfigSettingBase {
 
 	/**
 	 * @abstract
-	 * @return {HTMLElementExtended}
+	 * @return {HTMLElementModified}
 	 */
 	_getEleExternal () { throw new Error("Unimplemented!"); }
 

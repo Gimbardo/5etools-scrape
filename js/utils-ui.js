@@ -488,9 +488,6 @@ class UiUtil {
 			$modal: $(modal),
 			$modalInner: $(wrpScroller),
 			$modalFooter: $(modalFooter),
-			eleModal: modal,
-			eleModalInner: wrpScroller,
-			eleModalFooter: modalFooter,
 			doClose: pHandleCloseClick,
 			doTeardown,
 			pGetResolved: () => pResolveModal,
@@ -3560,7 +3557,7 @@ class DragReorderUiUtil {
 			const ixRow = $children.indexOf($fnGetRow());
 
 			$children.forEach(($child, i) => {
-				const dimensions = {w: $child.outerWidth(), h: $child.outerHeight()};
+				const dimensions = {w: $child.outerWidth(true), h: $child.outerHeight(true)};
 				const $dummy = $(`<div class="no-shrink ${i === ixRow ? "ui-drag__wrp-drag-dummy--highlight" : "ui-drag__wrp-drag-dummy--lowlight"}"></div>`)
 					.width(dimensions.w).height(dimensions.h)
 					.mouseup(() => {
@@ -5115,7 +5112,7 @@ class ComponentUiUtil {
 	 * @param [opts.isTreatIndeterminateNullAsPositive]
 	 * @param [opts.stateName] State name.
 	 * @param [opts.stateProp] State prop.
-	 * @return {(HTMLElementExtended | Object)}
+	 * @return {(HTMLElementModified | Object)}
 	 */
 	static getCbBool (component, prop, opts) {
 		opts = opts || {};

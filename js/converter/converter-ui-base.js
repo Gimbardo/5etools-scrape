@@ -248,7 +248,7 @@ export class ConverterUiBase extends BaseComponent {
 				});
 			}
 
-			const toDelete = curSources.difference(nxtSources);
+			const toDelete = CollectionUtil.setDiff(curSources, nxtSources);
 			if (toDelete.size) $selSource.find(`option`).filter((i, e) => toDelete.has($(e).val())).remove();
 		};
 		parent.addHook("availableSources", hkAvailSources);

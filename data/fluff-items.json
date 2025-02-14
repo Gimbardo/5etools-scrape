@@ -630,6 +630,19 @@
 			]
 		},
 		{
+			"name": "Blade of the Wood",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Blade-of-the-Wood.webp"
+					}
+				}
+			]
+		},
+		{
 			"name": "Blood Spear",
 			"source": "CoS",
 			"images": [
@@ -726,6 +739,19 @@
 					"href": {
 						"type": "internal",
 						"path": "items/DMG/Boots of the Winterlands.webp"
+					}
+				}
+			]
+		},
+		{
+			"name": "Borealus",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Borealus.webp"
 					}
 				}
 			]
@@ -2156,6 +2182,19 @@
 						"path": "decks/BMT/Deck of Many Things/08-fates.webp"
 					},
 					"credit": "Tinnel Lovitt"
+				}
+			]
+		},
+		{
+			"name": "Feathered Helm",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Feathered-Helm.webp"
+					}
 				}
 			]
 		},
@@ -4230,6 +4269,19 @@
 			]
 		},
 		{
+			"name": "Necronomicon Ex Corvis",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Necronomicon-Ex-Corvis.webp"
+					}
+				}
+			]
+		},
+		{
 			"name": "Needler Pistol",
 			"source": "QftIS",
 			"_copy": {
@@ -4246,6 +4298,19 @@
 					"href": {
 						"type": "internal",
 						"path": "items/VRGR/Nepenthe.webp"
+					}
+				}
+			]
+		},
+		{
+			"name": "Nest Charm",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Nest-Charm.webp"
 					}
 				}
 			]
@@ -4881,6 +4946,19 @@
 					"href": {
 						"type": "internal",
 						"path": "items/HAT-LMI/Red Wizard Blade.webp"
+					}
+				}
+			]
+		},
+		{
+			"name": "Red-Feather Bow",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Red-Feather-Bow.webp"
 					}
 				}
 			]
@@ -7229,6 +7307,19 @@
 					"href": {
 						"type": "internal",
 						"path": "items/PotA/Windvane.webp"
+					}
+				}
+			]
+		},
+		{
+			"name": "Wing Crest Shield",
+			"source": "HWCS",
+			"images": [
+				{
+					"type": "image",
+					"href": {
+						"type": "internal",
+						"path": "items/HWCS/Wing-Crest-Shield.webp"
 					}
 				}
 			]

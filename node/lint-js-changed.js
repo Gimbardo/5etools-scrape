@@ -29,10 +29,7 @@ const pDoLint = async () => {
 
 	if (!fileList.length) return console.warn(`Nothing to lint!`);
 
-	const eslint = new ESLint({
-		fix: true,
-		flags: ["unstable_config_lookup_from_file"],
-	});
+	const eslint = new ESLint({fix: true});
 
 	const results = await eslint.lintFiles(fileList);
 

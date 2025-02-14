@@ -1603,40 +1603,45 @@ globalThis.Renderer = function () {
 		const headerName = entry.displayName || entry.data?.name;
 		const headerStyle = entry.style;
 
-		const isFluff = entry.dataType?.includes("Fluff");
-
 		if (!fnGetRenderCompact) {
-			this._renderDataHeader(textStack, headerName, headerStyle, {isStats: !isFluff});
+			this._renderPrefix(entry, textStack, meta, options);
+			this._renderDataHeader(textStack, headerName, headerStyle);
 			textStack[0] += `<tr>
 				<td colspan="6">
 					<i class="text-danger">Cannot render &quot;${entry.type}&quot;&mdash;unknown data type &quot;${entry.dataType}&quot;!</i>
 				</td>
 			</tr>`;
 			this._renderDataFooter(textStack);
+			this._renderSuffix(entry, textStack, meta, options);
 			return;
 		}
 
 		if (!entry.data) {
-			this._renderDataHeader(textStack, headerName, headerStyle, {isStats: !isFluff});
+			this._renderPrefix(entry, textStack, meta, options);
+			this._renderDataHeader(textStack, headerName, headerStyle);
 			textStack[0] += `<tr>
 				<td colspan="6">
 					<i class="text-danger">Entry &quot;<i><code>${JSON.stringify(entry).qq()}</code></i> did not contain required &quot;data&quot; key!</i>
 				</td>
 			</tr>`;
 			this._renderDataFooter(textStack);
+			this._renderSuffix(entry, textStack, meta, options);
 			return;
 		}
 
 		const strategy = this._INLINE_STATBLOCK_STRATEGIES[entry.dataType];
 
 		if (!strategy?.pFnPreProcess && !entry.data?._copy) {
-			this._renderDataHeader(textStack, headerName, headerStyle, {isStats: !isFluff, isCollapsed: entry.collapsed});
+			this._renderPrefix(entry, textStack, meta, options);
+			this._renderDataHeader(textStack, headerName, headerStyle, {isCollapsed: entry.collapsed});
 			textStack[0] += fnGetRenderCompact(entry.data, {isEmbeddedEntity: true});
 			this._renderDataFooter(textStack);
+			this._renderSuffix(entry, textStack, meta, options);
 			return;
 		}
 
-		this._renderDataHeader(textStack, headerName, headerStyle, {isStats: !isFluff, isCollapsed: entry.collapsed});
+		this._renderPrefix(entry, textStack, meta, options);
+		this._renderDataHeader(textStack, headerName, headerStyle, {isCollapsed: entry.collapsed});
 
 		const id = CryptUtil.uid();
 		Renderer._cache.inlineStatblock[id] = {
@@ -1653,7 +1658,7 @@ globalThis.Renderer = function () {
 
 				const tbl = ele.closest("table");
 				const nxt = e_({
-					outer: Renderer.utils.getEmbeddedDataHeader(headerName, headerStyle, {isCollapsed: entry.collapsed, isStats: !isFluff})
+					outer: Renderer.utils.getEmbeddedDataHeader(headerName, headerStyle, {isCollapsed: entry.collapsed})
 						+ fnGetRenderCompact(ent, {isEmbeddedEntity: true})
 						+ Renderer.utils.getEmbeddedDataFooter(),
 				});
@@ -1666,10 +1671,11 @@ globalThis.Renderer = function () {
 
 		textStack[0] += `<tr><td colspan="6"><style data-rd-cache-id="${id}" data-rd-cache="inlineStatblock" onload="Renderer._cache.pRunFromEle(this)"></style></td></tr>`;
 		this._renderDataFooter(textStack);
+		this._renderSuffix(entry, textStack, meta, options);
 	};
 
-	this._renderDataHeader = function (textStack, name, style, {isStats = false, isCollapsed = false, htmlNameExpanded = null, htmlNameCollapsed = null} = {}) {
-		textStack[0] += Renderer.utils.getEmbeddedDataHeader(name, style, {isStats, isCollapsed, htmlNameExpanded, htmlNameCollapsed});
+	this._renderDataHeader = function (textStack, name, style, {isCollapsed = false} = {}) {
+		textStack[0] += Renderer.utils.getEmbeddedDataHeader(name, style, {isCollapsed});
 	};
 
 	this._renderDataFooter = function (textStack) {
@@ -1684,9 +1690,7 @@ globalThis.Renderer = function () {
 
 		const prop = entry.prop || Parser.getTagProps(entry.tag)[0];
 		const uid = prop ? DataUtil.proxy.getUid(prop, {...entry, source}, {isMaintainCase: true}) : "unknown|unknown";
-		const asTag = tag ? `{@${tag} ${uid}${entry.displayName ? `|${entry.displayName}` : ""}}` : null;
-
-		const isFluff = prop?.endsWith("Fluff");
+		const asTag = `{@${tag} ${uid}${entry.displayName ? `|${entry.displayName}` : ""}}`;
 
 		const displayName = entry.displayName || entry.name || entry.abbreviation;
 
@@ -1698,25 +1702,29 @@ globalThis.Renderer = function () {
 		if (fromPlugins) return void (textStack[0] += fromPlugins);
 
 		if (!page || !source || !hash) {
-			this._renderDataHeader(textStack, displayName, entry.style, {isStats: !isFluff, htmlNameExpanded, htmlNameCollapsed});
+			this._renderPrefix(entry, textStack, meta, options);
+			this._renderDataHeader(textStack, displayName, entry.style);
 			textStack[0] += `<tr>
 				<td colspan="6">
-					<i class="text-danger">Cannot load ${asTag ? `&quot;${asTag}&quot;` : displayName}! An unknown tag/prop, source, or hash was provided.</i>
+					<i class="text-danger">Cannot load ${tag ? `&quot;${asTag}&quot;` : displayName}! An unknown tag/prop, source, or hash was provided.</i>
 				</td>
 			</tr>`;
 			this._renderDataFooter(textStack);
+			this._renderSuffix(entry, textStack, meta, options);
 
 			return;
 		}
 
-		this._renderDataHeader(textStack, displayName, entry.style, {isStats: !isFluff, isCollapsed: entry.collapsed});
+		this._renderPrefix(entry, textStack, meta, options);
+		this._renderDataHeader(textStack, displayName, entry.style, {isCollapsed: entry.collapsed});
 		textStack[0] += `<tr>
-			<td colspan="6" data-rd-tag="${(tag || "").qq()}" data-rd-uid="${(uid || "").qq()}" data-rd-page="${(page || "").qq()}" data-rd-source="${(source || "").qq()}" data-rd-hash="${(hash || "").qq()}" data-rd-name="${(entry.name || "").qq()}" data-rd-display-name="${(displayName || "").qq()}" data-rd-style="${(entry.style || "").qq()}" data-rd-entry-data="${JSON.stringify(entry.data || {}).qq()}">
-				<i>Loading ${asTag ? `${Renderer.get().render(asTag)}` : displayName}...</i>
+			<td colspan="6" data-rd-tag="${(tag || "").qq()}" data-rd-page="${(page || "").qq()}" data-rd-source="${(source || "").qq()}" data-rd-hash="${(hash || "").qq()}" data-rd-name="${(entry.name || "").qq()}" data-rd-display-name="${(displayName || "").qq()}" data-rd-style="${(entry.style || "").qq()}">
+				<i>Loading ${tag ? `${Renderer.get().render(asTag)}` : displayName}...</i>
 				<style onload="Renderer.events.handleLoad_inlineStatblock(this)"></style>
 			</td>
 		</tr>`;
 		this._renderDataFooter(textStack);
+		this._renderSuffix(entry, textStack, meta, options);
 	};
 
 	this._renderGallery = function (entry, textStack, meta, options) {
@@ -2978,39 +2986,25 @@ Renderer.getFilterSubhashes = function (filters, namespace = null) {
 		const isBoxData = fName.startsWith("fb");
 		const key = isBoxData ? `${fName}${namespace ? `.${namespace}` : ""}` : `flst${namespace ? `.${namespace}` : ""}${UrlUtil.encodeForHash(fName)}`;
 
+		let value;
+		// special cases for "search" and "hash" keywords
 		if (isBoxData) {
 			return {
 				key,
 				value: fVals,
 				preEncoded: true,
 			};
-		}
-
-		// region Special cases for keywords
-		if (fName === "search") {
+		} else if (fName === "search") {
 			// "search" as a filter name is hackily converted to a box meta option
 			return {
 				key: VeCt.FILTER_BOX_SUB_HASH_SEARCH_PREFIX,
 				value: UrlUtil.encodeForHash(fVals),
 				preEncoded: true,
 			};
-		}
-
-		if (fName === "hash") {
+		} else if (fName === "hash") {
 			customHash = fVals;
 			return null;
-		}
-
-		if (fName === "preserve") {
-			return {
-				key: VeCt.FILTER_BOX_SUB_HASH_FLAG_IS_PRESERVE_EXISTING,
-				value: true,
-			};
-		}
-		// endregion
-
-		let value;
-		if (fVals.startsWith("[") && fVals.endsWith("]")) { // range
+		} else if (fVals.startsWith("[") && fVals.endsWith("]")) { // range
 			const [min, max] = fVals.substring(1, fVals.length - 1).split(";").map(it => it.trim());
 			if (max == null) { // shorthand version, with only one value, becomes min _and_ max
 				value = [
@@ -3269,29 +3263,13 @@ Renderer.utils = class {
 		return Renderer.get().render(Renderer.utils.getAbilityRollerEntry(statblock, ability, {isDisplayAsBonus}));
 	}
 
-	static getEmbeddedDataHeader (
-		name,
-		style,
-		{
-			isCollapsed = false,
-			isStatic = false,
-			isStats = false,
-
-			htmlNameCollapsed = null,
-			htmlNameExpanded = null,
-		} = {},
-	) {
-		return `<table class="rd__b-special rd__b-data ${style ? `rd__b-data--${style}` : ""} ${isStats ? `rd__b-data--stats` : ""}">
+	static getEmbeddedDataHeader (name, style, {isCollapsed = false, isStatic = false} = {}) {
+		return `<table class="rd__b-special rd__b-data ${style ? `rd__b-data--${style}` : ""}">
 		<thead>
 			<tr>
 				<th class="rd__data-embed-header ve-text-left" colspan="6" data-rd-data-embed-header="true">
-					<div class="w-100 split-v-center">
-						<div class="ve-flex-v-center w-100 min-w-0">
-							<span class="rd__data-embed-name ${!isStatic && isCollapsed ? "" : `ve-hidden`}">${htmlNameCollapsed || name}</span>
-							<span class="rd__data-embed-name-expanded ve-text-right pr-2 w-100 ${!isStatic && isCollapsed ? `ve-hidden` : ""}">${htmlNameExpanded || ""}</span>
-						</div>
-						${isStatic ? `<span></span>` : `<span class="rd__data-embed-toggle">[${isCollapsed ? "+" : "\u2013"}]</span>`}
-					</div>
+					<span class="rd__data-embed-name ${!isStatic && isCollapsed ? "" : `ve-hidden`}">${name}</span>
+					${isStatic ? `<span></span>` : `<span class="rd__data-embed-toggle">[${isCollapsed ? "+" : "\u2013"}]</span>`}
 				</th>
 			</tr>
 		</thead><tbody class="${!isStatic && isCollapsed ? `ve-hidden` : ""}" data-rd-embedded-data-render-target="true">`;
@@ -4651,9 +4629,6 @@ Renderer.utils = class {
 			// (Stubbed, as unused in 2014)
 			case "@facility": { out.isFauxPage = true; out.page = "facility"; break; }
 
-			// TODO(Future) revise/expand
-			case "@creatureFluff": { out.isFauxPage = true; out.page = "monsterFluff"; break; }
-
 			default: throw new Error(`Unhandled tag "${tag}"`);
 		}
 
@@ -5851,17 +5826,12 @@ Renderer.events = class {
 	}
 
 	static handleClick_dataEmbedHeader (evt, ele) {
-		if (evt.target.closest("a")) return;
-
 		evt.stopPropagation();
 		evt.preventDefault();
 
 		const $ele = $(ele);
-		const $eleToggle = $ele.find(".rd__data-embed-toggle");
-		const isHidden = $eleToggle.text().includes("+");
-		$ele.find(".rd__data-embed-name").toggleVe(!isHidden);
-		$ele.find(".rd__data-embed-name-expanded").toggleVe(isHidden);
-		$eleToggle.text(isHidden ? "[\u2013]" : "[+]");
+		$ele.find(".rd__data-embed-name").toggleVe();
+		$ele.find(".rd__data-embed-toggle").text($ele.text().includes("+") ? "[\u2013]" : "[+]");
 		$ele.closest("table").find("tbody").toggleVe();
 	}
 
@@ -5955,49 +5925,16 @@ Renderer.events = class {
 		observer.track(ele.parentNode);
 	}
 
-	static _handleLoad_inlineStatblock_getHtmlNames ({tag, uid, displayName}) {
-		if (!tag) return {};
-
-		const tagMeta = Renderer.utils.getTagMeta(`@${tag}`, `${uid}${displayName ? `|${displayName}` : ""}`);
-
-		const {name, displayText, page, hash, hashPreEncoded} = tagMeta;
-
-		const fauxEntryBase = {
-			type: "link",
-			href: {
-				type: "internal",
-				path: page,
-				hash,
-			},
-		};
-		if (hashPreEncoded != null) fauxEntryBase.href.hashPreEncoded = hashPreEncoded;
-
-		return {
-			htmlNameCollapsed: Renderer.get().render({
-				...fauxEntryBase,
-				text: displayText || name,
-			}),
-			htmlNameExpanded: Renderer.get().render({
-				...fauxEntryBase,
-				text: `<button class="ve-btn ve-btn-default ve-btn-xxs" title="Go to Page">
-					<span class="glyphicon glyphicon-modal-window"></span>
-				</button>`,
-			}),
-		};
-	}
-
 	static _handleLoad_inlineStatblock_fnOnObserve ({entry}) {
 		const ele = entry.target;
 
 		const tag = ele.dataset.rdTag.uq();
-		const uid = (ele.getAttribute("data-rd-uid") || "").uq();
 		const page = ele.dataset.rdPage.uq();
 		const source = ele.dataset.rdSource.uq();
 		const name = ele.dataset.rdName.uq();
 		const displayName = ele.dataset.rdDisplayName.uq();
 		const hash = ele.dataset.rdHash.uq();
 		const style = ele.dataset.rdStyle.uq();
-		const entryData = JSON.parse((ele.getAttribute("data-rd-entry-data") || "").uq() || `{}`);
 
 		return DataLoader.pCacheAndGet(page, Parser.getTagSource(tag, source), hash)
 			.then(toRender => {
@@ -6011,23 +5948,11 @@ Renderer.events = class {
 				const headerName = displayName
 					|| (name ?? toRender.name ?? (toRender.entries?.length ? toRender.entries?.[0]?.name : "(Unknown)"));
 
-				const {htmlNameCollapsed, htmlNameExpanded} = Renderer.events._handleLoad_inlineStatblock_getHtmlNames({
-					tag, uid, displayName,
-				});
-
 				const fnRender = Renderer.hover.getFnRenderCompact(page);
 				const tbl = tr.closest("table");
 				const nxt = e_({
-					outer: Renderer.utils.getEmbeddedDataHeader(
-						headerName,
-						style,
-						{
-							isStats: !toRender.__prop?.endsWith("Fluff"),
-							htmlNameCollapsed,
-							htmlNameExpanded,
-						},
-					)
-						+ fnRender(toRender, {...(entryData?.renderCompact || {}), isEmbeddedEntity: true})
+					outer: Renderer.utils.getEmbeddedDataHeader(headerName, style)
+						+ fnRender(toRender, {isEmbeddedEntity: true})
 						+ Renderer.utils.getEmbeddedDataFooter(),
 				});
 				tbl.parentNode.replaceChild(
@@ -10254,7 +10179,7 @@ Renderer.monster = class {
 		if (!envs?.length) return "";
 
 		const ptEntry = envs
-			.map(env => `{@filter ${Parser.getEnvironmentDisplayName(env)}|bestiary|environment=${env}|preserve}`)
+			.map(env => `{@filter ${Parser.getEnvironmentDisplayName(env)}|bestiary|environment=${env}}`)
 			.sort(SortUtil.ascSortLower)
 			.join(", ");
 
@@ -11892,12 +11817,7 @@ Renderer.item = class {
 
 		// Inherit generic variant fluff
 		return Renderer.utils.pGetFluff({
-			entity: {
-				name: item._variantName,
-				source: item.source,
-				hasFluff: item.hasFluff,
-				hasFluffImages: item.hasFluffImages,
-			},
+			entity: {name: item._variantName, source: item.source},
 			fluffProp: "itemFluff",
 		});
 	}
@@ -14990,23 +14910,6 @@ Renderer.hover = class {
 		`;
 	}
 
-	static getCompactRenderedFluffString (entry, {isSkipRootName = false} = {}) {
-		if (!entry.entries) return "";
-
-		if (!isSkipRootName) {
-			return `<tr><td colspan="6" class="pb-2">
-			${Renderer.get().setFirstSection(true).render(entry.entries)}
-			</td></tr>`;
-		}
-
-		const toRender = MiscUtil.copyFast(entry.entries);
-		delete toRender[0]?.name;
-
-		return `<tr><td colspan="6" class="pb-2">
-		${Renderer.get().setFirstSection(true).render({type: "entries", entries: toRender})}
-		</td></tr>`;
-	}
-
 	static getFnRenderCompact (page, {isStatic = false} = {}) {
 		switch (page) {
 			case "generic":
@@ -15048,7 +14951,6 @@ Renderer.hover = class {
 			// endregion
 			default:
 				if (Renderer[page]?.getCompactRenderedString) return Renderer[page].getCompactRenderedString.bind(Renderer[page]);
-				if (page?.endsWith("Fluff")) return Renderer.hover.getCompactRenderedFluffString.bind(Renderer.hover);
 				return null;
 		}
 	}

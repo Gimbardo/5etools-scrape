@@ -1,4 +1,4 @@
-import {AttachedSpellTag, BasicTextClean, BonusTag, ChargeTag, ConditionImmunityTag, DamageImmunityTag, DamageResistanceTag, DamageVulnerabilityTag, ItemMiscTag, ItemOtherTagsTag, ItemSpellcastingFocusTag, LightTag, RechargeAmountTag, RechargeTypeTag, ReqAttuneTagTag} from "./converterutils-item.js";
+import {AttachedSpellTag, BasicTextClean, BonusTag, ChargeTag, ConditionImmunityTag, DamageImmunityTag, DamageResistanceTag, DamageVulnerabilityTag, ItemMiscTag, ItemOtherTagsTag, ItemSpellcastingFocusTag, RechargeAmountTag, RechargeTypeTag, ReqAttuneTagTag} from "./converterutils-item.js";
 import {ConverterBase} from "./converter-base.js";
 import {ArtifactPropertiesTag, TagCondition} from "./converterutils-tags.js";
 import {TagJsons} from "./converterutils-entries.js";
@@ -126,7 +126,6 @@ export class ConverterItem extends ConverterBase {
 		ConditionImmunityTag.tryRun(stats, {cbMan: () => options.cbWarning(`${manName}Condition immunity tagging requires manual conversion`)});
 		ReqAttuneTagTag.tryRun(stats, {cbMan: () => options.cbWarning(`${manName}Attunement requirement tagging requires manual conversion`)});
 		AttachedSpellTag.tryRun(stats);
-		LightTag.tryRun(stats);
 
 		// TODO
 		//  - tag damage type?
@@ -194,7 +193,6 @@ export class ConverterItem extends ConverterBase {
 				case "rod": stats.type = Parser.ITM_TYP__ROD; continue;
 				case "wand": stats.type = Parser.ITM_TYP__WAND; continue;
 				case "scroll": stats.type = Parser.ITM_TYP__SCROLL; continue;
-				case "adventuring gear": stats.type = Parser.ITM_TYP__ADVENTURING_GEAR; continue;
 			}
 			// endregion
 
@@ -280,13 +278,7 @@ export class ConverterItem extends ConverterBase {
 					continue;
 				}
 
-				options.cbWarning(`${stats.name ? `(${stats.name}) ` : ""}Multiple base item(s) for "${mBaseWeapon.groups.ptParens}"`);
-
-				// e.g. XDMG items have broken down "any sword" into a specific list of items
-				(stats.requires ||= [])
-					.push(...baseItems.map(({name, source}) => ({name, source})));
-				stats.__genericType = true;
-				continue;
+				throw new Error(`Multiple base item(s) for "${mBaseWeapon.groups.ptParens}"`);
 			}
 
 			const mBaseArmor = /^armou?r \((?<type>[^)]+)\)$/i.exec(part);
@@ -592,14 +584,6 @@ export class ConverterItem extends ConverterBase {
 			needleBlowgun: true,
 			weapon: true,
 		})
-			.forEach(prop => delete stats[prop]);
-		// endregion
-
-		// region other props
-		[
-			"reprintedAs",
-			"edition",
-		]
 			.forEach(prop => delete stats[prop]);
 		// endregion
 	}
