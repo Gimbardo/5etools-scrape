@@ -234,7 +234,8 @@ export class InitiativeTrackerMonsterAdd extends BaseComponent {
 		const {$modalInner, doClose, pGetResolved} = UiUtil.getShowModal();
 		rdState.cbDoClose = doClose;
 
-		const $iptSearch = $(`<input class="ui-search__ipt-search search form-control" autocomplete="off" placeholder="Search...">`);
+		const $iptSearch = $(`<input class="ui-search__ipt-search search form-control" autocomplete="off" placeholder="Search...">`)
+			.blurOnEsc();
 
 		$$`<div class="split no-shrink">
 			${$iptSearch}
